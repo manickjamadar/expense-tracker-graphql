@@ -53,6 +53,10 @@ const server = new ApolloServer({
 	typeDefs: rootTypeDefs,
 	resolvers: rootResolvers,
 	plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  formatError:(formattedError,error)=>{
+    console.log(error.message);
+    return {message:error.message || "Something went wrong"}
+  },
 });
 
 // Ensure we wait for our server to start

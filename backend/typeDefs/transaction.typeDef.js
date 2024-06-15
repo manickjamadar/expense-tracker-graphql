@@ -15,12 +15,12 @@ const transactionTypeDef = `#graphql
     }
     type Query{
         transactions: [Transaction!]
-        transaction(transactionId:ID!): Transaction!
+        transaction(transactionId:ID!): Transaction
     }
     type Mutation{
         createTransaction(payload:CreateTransactionPayload!): Transaction!
-        updateTransaction(transactionId:ID!,payload:UploadTransactionPayload!): Transaction!
-        deleteTransaction(transactionId:ID!): Transaction!
+        updateTransaction(transactionId:ID!,payload:UploadTransactionPayload!): Transaction
+        deleteTransaction(transactionId:ID!): Transaction
     }
     input CreateTransactionPayload{
         description: String!
