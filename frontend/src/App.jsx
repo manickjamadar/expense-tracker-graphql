@@ -7,22 +7,39 @@ import NotFoundPage from "./pages/NotFoundPage";
 import Header from "./components/ui/Header";
 import { useQuery } from "@apollo/client";
 import { GET_AUTHENTICATED_USER } from "./graphql/queries/user.query";
+import FullPageLoader from "./components/ui/FullPageLoader";
+import { Toaster } from "react-hot-toast";
 function App() {
   const { loading, data, error } = useQuery(GET_AUTHENTICATED_USER);
-  const authUser = true;
-  console.log("auth:error: ", error);
-  console.log("auth:loading ", loading);
-  console.log("auth:data ", data);
+  if (loading || !data) {
+    return <FullPageLoader />;
+  }
+  const isAuthenticated = Boolean(data.authUser);
   return (
     <>
-      {authUser && <Header />}
+      {isAuthenticated && <Header />}
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/transaction/:id" element={<TransactionPage />} />
+        <Route
+          path="/"
+          element={isAuthenticated ? <HomePage /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/login"
+          element={isAuthenticated ? <Navigate to="/" /> : <LoginPage />}
+        />
+        <Route
+          path="/signup"
+          element={isAuthenticated ? <Navigate to="/" /> : <SignUpPage />}
+        />
+        <Route
+          path="/transaction/:id"
+          element={
+            isAuthenticated ? <TransactionPage /> : <Navigate to="/login" />
+          }
+        />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      <Toaster />
     </>
   );
 }

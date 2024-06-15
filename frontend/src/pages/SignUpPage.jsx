@@ -2,8 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import RadioButton from "../components/RadioButton";
 import InputField from "../components/InputField";
-
+import { useMutation } from "@apollo/client";
+import { SIGN_UP } from "../graphql/mutations/user.mutation";
+import { toast } from "react-hot-toast";
 const SignUpPage = () => {
+  const [signup, { loading, error, data }] = useMutation(SIGN_UP);
   const [signUpData, setSignUpData] = useState({
     name: "",
     username: "",
@@ -29,7 +32,16 @@ const SignUpPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(signUpData);
+    try {
+      const data = await signup({
+        variables: {
+          payload: { ...signUpData },
+        },
+      });
+      toast.success("Signed up successfully");
+    } catch (error) {
+      toast.error(error?.message || "Signup Failed");
+    }
   };
 
   return (
@@ -72,17 +84,17 @@ const SignUpPage = () => {
                   id="male"
                   label="Male"
                   name="gender"
-                  value="male"
+                  value="MALE"
                   onChange={handleChange}
-                  checked={signUpData.gender === "male"}
+                  checked={signUpData.gender === "MALE"}
                 />
                 <RadioButton
                   id="female"
                   label="Female"
                   name="gender"
-                  value="female"
+                  value="FEMALE"
                   onChange={handleChange}
-                  checked={signUpData.gender === "female"}
+                  checked={signUpData.gender === "FEMALE"}
                 />
               </div>
 
@@ -90,8 +102,9 @@ const SignUpPage = () => {
                 <button
                   type="submit"
                   className="w-full bg-black text-white p-2 rounded-md hover:bg-gray-800 focus:outline-none focus:bg-black  focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={loading}
                 >
-                  Sign Up
+                  {loading ? "Loading..." : "Sign Up"}
                 </button>
               </div>
             </form>
