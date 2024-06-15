@@ -5,10 +5,13 @@ import Cards from "../components/Cards";
 import TransactionForm from "../components/TransactionForm";
 
 import { MdLogout } from "react-icons/md";
+import { useMutation } from "@apollo/client";
+import { LOGOUT } from "../graphql/mutations/user.mutation";
+import toast from "react-hot-toast";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
-
-const HomePage = () => {
+const HomePage = ({ profilePicture }) => {
+  const [logout, { loading }] = useMutation(LOGOUT);
   const chartData = {
     labels: ["Saving", "Expense", "Investment"],
     datasets: [
@@ -33,12 +36,15 @@ const HomePage = () => {
     ],
   };
 
-  const handleLogout = () => {
-    console.log("Logging out...");
+  const handleLogout = async () => {
+    try {
+      await logout({
+        refetchQueries: ["GetAuthenticatedUser"],
+      });
+    } catch (error) {
+      toast.error(error?.message || "Logout Successfull");
+    }
   };
-
-  const loading = false;
-
   return (
     <>
       <div className="flex flex-col gap-6 items-center max-w-7xl mx-auto z-20 relative justify-center">
@@ -47,7 +53,9 @@ const HomePage = () => {
             Spend wisely, track wisely
           </p>
           <img
-            src={"https://tecdn.b-cdn.net/img/new/avatars/2.webp"}
+            src={
+              profilePicture || "https://tecdn.b-cdn.net/img/new/avatars/2.webp"
+            }
             className="w-11 h-11 rounded-full border cursor-pointer"
             alt="Avatar"
           />

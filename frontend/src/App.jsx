@@ -21,7 +21,13 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={isAuthenticated ? <HomePage /> : <Navigate to="/login" />}
+          element={
+            isAuthenticated ? (
+              <HomePage profilePicture={data.authUser.profilePicture} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
         <Route
           path="/login"

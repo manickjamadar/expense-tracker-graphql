@@ -112,7 +112,7 @@ const TransactionForm = () => {
             id="amount"
             name="amount"
             type="number"
-            placeholder="150"
+            placeholder="Enter Amount"
           />
         </div>
       </div>

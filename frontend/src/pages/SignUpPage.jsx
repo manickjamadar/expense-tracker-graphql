@@ -33,9 +33,10 @@ const SignUpPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await signup({
+      await signup({
         variables: {
           payload: { ...signUpData },
+          refetchQueries: ["GetAuthenticatedUser"],
         },
       });
       toast.success("Signed up successfully");

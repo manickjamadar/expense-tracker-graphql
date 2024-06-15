@@ -12,3 +12,21 @@ export const SIGN_UP = gql`
         }
     }
 `;
+export const LOGIN = gql`
+    mutation LoginUser($payload: LoginPayload!){
+        login(payload: $payload) {
+            _id
+            name
+            username
+            profilePicture
+            gender
+        }
+    }
+`;
+export const LOGOUT = gql`
+    mutation LogoutUser{
+        logout {
+            message
+        }
+    }
+`;
