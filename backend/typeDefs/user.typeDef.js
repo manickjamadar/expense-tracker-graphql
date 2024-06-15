@@ -1,11 +1,15 @@
 const userTypeDef = `#graphql
+    enum UserGender{
+        MALE
+        FEMALE
+    }
     type User{
         _id: ID!
         username: String!
         name: String!
         password: String!
         profilePicture: String
-        gender: String!
+        gender: UserGender!
     }
     type Query{
         users: [User!]
@@ -20,7 +24,7 @@ const userTypeDef = `#graphql
     input SignupPayload{
         username: String!
         name: String!
-        gender: String!
+        gender: UserGender!
         profilePicture:String
         password:String!
     }
