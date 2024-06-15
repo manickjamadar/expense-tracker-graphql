@@ -1,6 +1,24 @@
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 import TransactionFormSkeleton from "../components/skeletons/TransactionFormSkeleton";
+import { useMutation, useQuery } from "@apollo/client";
+import { GET_TRANSACTION } from "../graphql/queries/transaction.query";
+import diffObject from "../utils/diffObject";
+import { UPDATE_TRANSACTION } from "../graphql/mutations/transaction.mutation";
+import toast from "react-hot-toast";
 const TransactionPage = () => {
+  let { transactionId } = useParams();
+  const { data, loading: loadingTransaction } = useQuery(GET_TRANSACTION, {
+    variables: {
+      transactionId,
+    },
+    onCompleted: (data) => {
+      console.log("data: ", data);
+      setFormData({ ...data.transaction });
+    },
+  });
+  const [updateTransaction, { loading: updatingTransaction }] =
+    useMutation(UPDATE_TRANSACTION);
   const [formData, setFormData] = useState({
     description: "",
     paymentType: "",
@@ -12,17 +30,32 @@ const TransactionPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("formData", formData);
+    const updatedData = { ...formData, amount: parseFloat(formData.amount) };
+    console.table([updatedData, data.transaction]);
+    const newTransactionData = diffObject(updatedData, data.transaction);
+    try {
+      await updateTransaction({
+        variables: {
+          transactionId,
+          payload: newTransactionData,
+        },
+      });
+      toast.success("Transaction Updated Successfully");
+    } catch (error) {
+      toast.error("Updating Transaction Failed");
+    }
   };
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    const newValue =
+      name === "date" ? new Date(value).getTime().toString() : value;
     setFormData((prevFormData) => ({
       ...prevFormData,
-      [name]: value,
+      [name]: newValue,
     }));
   };
 
-  // if (loading) return <TransactionFormSkeleton />;
+  if (loadingTransaction) return <TransactionFormSkeleton />;
 
   return (
     <div className="h-screen max-w-4xl mx-auto flex flex-col items-center">
@@ -68,10 +101,10 @@ const TransactionPage = () => {
                 id="paymentType"
                 name="paymentType"
                 onChange={handleInputChange}
-                defaultValue={formData.paymentType}
+                value={formData.paymentType}
               >
-                <option value={"card"}>Card</option>
-                <option value={"cash"}>Cash</option>
+                <option value={"CARD"}>Card</option>
+                <option value={"CASH"}>Cash</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg
@@ -99,7 +132,7 @@ const TransactionPage = () => {
                 id="category"
                 name="category"
                 onChange={handleInputChange}
-                defaultValue={formData.category}
+                value={formData.category}
               >
                 <option value={"saving"}>Saving</option>
                 <option value={"expense"}>Expense</option>
@@ -172,7 +205,7 @@ const TransactionPage = () => {
               className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-[11px] px-4 mb-3 leading-tight focus:outline-none
 						 focus:bg-white"
               placeholder="Select date"
-              value={formData.date}
+              value={new Date(+formData.date).toISOString().substring(0, 10)}
               onChange={handleInputChange}
             />
           </div>
@@ -182,8 +215,9 @@ const TransactionPage = () => {
           className="text-white font-bold w-full rounded px-4 py-2 bg-gradient-to-br
           from-pink-500 to-pink-500 hover:from-pink-600 hover:to-pink-600"
           type="submit"
+          disabled={updatingTransaction}
         >
-          Update Transaction
+          {updatingTransaction ? "Updating..." : "Update Transaction"}
         </button>
       </form>
     </div>

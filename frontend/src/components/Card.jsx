@@ -6,6 +6,10 @@ import { FaTrash } from "react-icons/fa";
 import { HiPencilAlt } from "react-icons/hi";
 import { Link } from "react-router-dom";
 import { formatDate } from "../utils/formatDate";
+import { useMutation } from "@apollo/client";
+import { DELETE_TRANSACTION } from "../graphql/mutations/transaction.mutation";
+import { GET_TRANSACTIONS } from "../graphql/queries/transaction.query";
+import toast from "react-hot-toast";
 
 const categoryColorMap = {
   saving: "from-green-700 to-green-400",
@@ -15,10 +19,23 @@ const categoryColorMap = {
 };
 
 const Card = ({ transaction }) => {
+  const [deleteTransaction, { loading }] = useMutation(DELETE_TRANSACTION);
   const { _id, amount, category, date, description, location, paymentType } =
     transaction;
   const cardClass = categoryColorMap[category] || "from-green-700 to-green-400";
-
+  const handleDelete = async (id) => {
+    try {
+      await deleteTransaction({
+        variables: {
+          transactionId: id,
+        },
+        refetchQueries: [GET_TRANSACTIONS],
+      });
+      toast.success("Tranaction Deleted Successfully");
+    } catch (error) {
+      toast.error("Delete Failed");
+    }
+  };
   return (
     <div className={`rounded-md p-4 bg-gradient-to-br ${cardClass}`}>
       <div className="flex flex-col gap-3">
@@ -27,7 +44,10 @@ const Card = ({ transaction }) => {
             {category}
           </h2>
           <div className="flex items-center gap-2">
-            <FaTrash className={"cursor-pointer"} />
+            <FaTrash
+              className={"cursor-pointer"}
+              onClick={handleDelete.bind(this, _id)}
+            />
             <Link to={`/transaction/${_id}`}>
               <HiPencilAlt className="cursor-pointer" size={20} />
             </Link>

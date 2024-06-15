@@ -38,7 +38,7 @@ function App() {
           element={isAuthenticated ? <Navigate to="/" /> : <SignUpPage />}
         />
         <Route
-          path="/transaction/:id"
+          path="/transaction/:transactionId"
           element={
             isAuthenticated ? <TransactionPage /> : <Navigate to="/login" />
           }
