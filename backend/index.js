@@ -9,6 +9,7 @@ import rootResolvers from "./resolvers/index.js";
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
+import connectDb from './config/db.js';
 
 // Required logic for integrating with Express
 const app = express();
@@ -24,6 +25,7 @@ const server = new ApolloServer({
   resolvers: rootResolvers,
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
+await connectDb();
 // Ensure we wait for our server to start
 await server.start();
 
