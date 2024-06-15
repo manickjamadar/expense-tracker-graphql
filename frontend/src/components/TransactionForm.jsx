@@ -1,4 +1,9 @@
+import { useMutation } from "@apollo/client";
+import { CREATE_TRANSACTION } from "../graphql/mutations/transaction.mutation";
+import { toast } from "react-hot-toast";
+import { GET_TRANSACTIONS } from "../graphql/queries/transaction.query";
 const TransactionForm = () => {
+  const [createTransaction, { loading }] = useMutation(CREATE_TRANSACTION);
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -10,9 +15,21 @@ const TransactionForm = () => {
       category: formData.get("category"),
       amount: parseFloat(formData.get("amount")),
       location: formData.get("location"),
-      date: formData.get("date"),
+      date: new Date(formData.get("date")).toISOString(),
     };
-    console.log("transactionData", transactionData);
+    try {
+      const result = await createTransaction({
+        variables: {
+          payload: transactionData,
+        },
+        refetchQueries: [GET_TRANSACTIONS],
+      });
+      console.log(result);
+      form.reset();
+      toast.success("Transaction Added Successfully");
+    } catch (error) {
+      toast.error(error.message || "Transaction Creation Failed");
+    }
   };
 
   return (
@@ -54,8 +71,8 @@ const TransactionForm = () => {
               id="paymentType"
               name="paymentType"
             >
-              <option value={"card"}>Card</option>
-              <option value={"cash"}>Cash</option>
+              <option value={"CARD"}>Card</option>
+              <option value={"CASH"}>Cash</option>
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
               <svg
@@ -83,8 +100,8 @@ const TransactionForm = () => {
               id="category"
               name="category"
             >
-              <option value={"saving"}>Saving</option>
               <option value={"expense"}>Expense</option>
+              <option value={"saving"}>Saving</option>
               <option value={"investment"}>Investment</option>
             </select>
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
@@ -113,6 +130,7 @@ const TransactionForm = () => {
             name="amount"
             type="number"
             placeholder="Enter Amount"
+            required
           />
         </div>
       </div>
@@ -132,6 +150,7 @@ const TransactionForm = () => {
             name="location"
             type="text"
             placeholder="New York"
+            required
           />
         </div>
 
@@ -150,6 +169,7 @@ const TransactionForm = () => {
             className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-[11px] px-4 mb-3 leading-tight focus:outline-none
 						 focus:bg-white"
             placeholder="Select date"
+            required
           />
         </div>
       </div>
@@ -159,8 +179,9 @@ const TransactionForm = () => {
           from-pink-500 to-pink-500 hover:from-pink-600 hover:to-pink-600
 						disabled:opacity-70 disabled:cursor-not-allowed"
         type="submit"
+        disabled={loading}
       >
-        Add Transaction
+        {loading ? "Adding..." : "Add Transaction"}
       </button>
     </form>
   );
