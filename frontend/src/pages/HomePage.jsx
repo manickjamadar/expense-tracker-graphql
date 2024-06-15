@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 const HomePage = ({ profilePicture }) => {
-  const [logout, { loading }] = useMutation(LOGOUT);
+  const [logout, { loading, client }] = useMutation(LOGOUT);
   const chartData = {
     labels: ["Saving", "Expense", "Investment"],
     datasets: [
@@ -41,6 +41,8 @@ const HomePage = ({ profilePicture }) => {
       await logout({
         refetchQueries: ["GetAuthenticatedUser"],
       });
+      client.resetStore();
+      toast.success("User logged out successufully");
     } catch (error) {
       toast.error(error?.message || "Logout Successfull");
     }
