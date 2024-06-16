@@ -15,6 +15,9 @@ import { buildContext } from "graphql-passport";
 import rootTypeDefs from './typeDefs/index.js';
 import rootResolvers from './resolvers/index.js';
 import connectDB from './config/db.js';
+import DataLoader from "dataloader";
+import User from "./models/user.model.js";
+import mongoose from "mongoose";
 dotenv.config();
 configurePassport();
 
@@ -74,7 +77,20 @@ app.use(
 	// expressMiddleware accepts the same arguments:
 	// an Apollo Server instance and optional configuration options
 	expressMiddleware(server, {
-		context: async ({ req, res }) => buildContext({ req, res }),
+		context: async ({ req, res }) => {
+			const userLoader = new DataLoader(async(userIds)=>{
+				const users = await User.find({"_id":{$in:[...userIds]}});
+				const usersMap = {};
+				users.forEach(user=>{
+					usersMap[user._id.toHexString()] = user;
+				});
+				console.log(usersMap);
+				const resultUsers = userIds.map(userId=>usersMap[userId]);
+				console.log("resultUsers: ",resultUsers);
+				return resultUsers;
+			});
+			return buildContext({ req, res, userLoader });
+		},
 	})
 );
 
