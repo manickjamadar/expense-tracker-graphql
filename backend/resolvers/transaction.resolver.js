@@ -4,15 +4,15 @@ import User from '../models/user.model.js';
 import calculateAge from '../utils/calculateAge.js';
 const transactionResolver = {
     Query:{
-        transactions:async(_,__,context,info)=>{
+        transactions:async(_,{skip,limit},context,info)=>{
             // console.log("transactionsInfo: ",info);
             //TODO: add aggregation to lookup user
                 const user = await context.getUser();
                 if(!user){
                     throw new Error("Unauthorized Request");
                 }
-                const transactions = await Transaction.find({userId:user._id});
-                return transactions;
+                const transactions = await Transaction.find({userId:user._id}).skip(skip || 0).limit(limit || 10);
+                return {items:transactions,count:transactions.length};
         },
         transaction:async(_,{transactionId},context)=>{
              //TODO: add aggregation to lookup user

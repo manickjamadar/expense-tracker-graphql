@@ -19,8 +19,12 @@ const transactionTypeDef = `#graphql
         category:String!
         totalAmount:Float!
     }
+    type TransactionsResult{
+        items: [Transaction!]!
+        count: Int
+    }
     type Query{
-        transactions: [Transaction!]
+        transactions(skip:Int,limit:Int): TransactionsResult!
         transaction(transactionId:ID!): Transaction
         categoryStatistics: [CategoryStatistic!]
     }

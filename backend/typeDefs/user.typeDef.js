@@ -10,7 +10,7 @@ const userTypeDef = `#graphql
         password: String!
         profilePicture: String
         gender: UserGender!
-        transactions:[Transaction!]
+        transactions: [Transaction!]!
     }
     type Query{
         authUser: User
