@@ -13,9 +13,14 @@ const transactionTypeDef = `#graphql
         CASH
         CARD
     }
+    type CategoryStatistic{
+        category:String!
+        totalAmount:Float!
+    }
     type Query{
         transactions: [Transaction!]
         transaction(transactionId:ID!): Transaction
+        categoryStatistics: [CategoryStatistic!]
     }
     type Mutation{
         createTransaction(payload:CreateTransactionPayload!): Transaction!

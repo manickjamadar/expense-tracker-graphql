@@ -5,37 +5,56 @@ import Cards from "../components/Cards";
 import TransactionForm from "../components/TransactionForm";
 
 import { MdLogout } from "react-icons/md";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { LOGOUT } from "../graphql/mutations/user.mutation";
 import toast from "react-hot-toast";
-
+import { useMemo } from "react";
+import { GET_CATEGORY_STATISTICS } from "../graphql/queries/transaction.query";
+const colorMap = {
+  saving: "rgba(75, 192, 192)",
+  expense: "rgba(255, 99, 132)",
+  investment: "rgba(54, 162, 235)",
+};
+//[{category:"saving",totalAmount:342},{category:"investment",totalAmount:342},{category:"expense",totalAmount:342}]
 ChartJS.register(ArcElement, Tooltip, Legend);
 const HomePage = ({ profilePicture }) => {
-  const [logout, { loading, client }] = useMutation(LOGOUT);
-  const chartData = {
-    labels: ["Saving", "Expense", "Investment"],
-    datasets: [
-      {
-        label: "%",
-        data: [13, 8, 3],
-        backgroundColor: [
-          "rgba(75, 192, 192)",
-          "rgba(255, 99, 132)",
-          "rgba(54, 162, 235)",
-        ],
-        borderColor: [
-          "rgba(75, 192, 192)",
-          "rgba(255, 99, 132)",
-          "rgba(54, 162, 235, 1)",
-        ],
-        borderWidth: 1,
-        borderRadius: 30,
-        spacing: 10,
-        cutout: 130,
-      },
-    ],
-  };
-
+  const { data: staticticsData, loading: loadingCategoryStatistics } = useQuery(
+    GET_CATEGORY_STATISTICS
+  );
+  const [logout, { loading: loadingLogout, client }] = useMutation(LOGOUT);
+  const chartData = useMemo(() => {
+    let result = {
+      labels: [],
+      chartDataPoints: [],
+      backgroundColor: [],
+      borderColor: [],
+    };
+    if (!staticticsData || staticticsData.categoryStatistics.length < 1) {
+      result.labels.push("Loading");
+      result.chartDataPoints.push(100);
+    }
+    staticticsData.categoryStatistics.forEach(({ category, totalAmount }) => {
+      result.labels.push(category);
+      result.chartDataPoints.push(totalAmount);
+      result.backgroundColor.push(colorMap[category]);
+      result.borderColor.push(colorMap[category]);
+    });
+    return {
+      labels: result.labels,
+      datasets: [
+        {
+          label: "%",
+          data: result.chartDataPoints,
+          backgroundColor: result.backgroundColor,
+          borderColor: result.borderColor,
+          borderWidth: 1,
+          borderRadius: 30,
+          spacing: 10,
+          cutout: 130,
+        },
+      ],
+    };
+  }, [staticticsData]);
   const handleLogout = async () => {
     try {
       await logout({
@@ -61,14 +80,14 @@ const HomePage = ({ profilePicture }) => {
             className="w-11 h-11 rounded-full border cursor-pointer"
             alt="Avatar"
           />
-          {!loading && (
+          {!loadingLogout && (
             <MdLogout
               className="mx-2 w-5 h-5 cursor-pointer"
               onClick={handleLogout}
             />
           )}
-          {/* loading spinner */}
-          {loading && (
+          {/* loadingLogout spinner */}
+          {loadingLogout && (
             <div className="w-6 h-6 border-t-2 border-b-2 mx-2 rounded-full animate-spin"></div>
           )}
         </div>

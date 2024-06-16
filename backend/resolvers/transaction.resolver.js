@@ -18,6 +18,19 @@ const transactionResolver = {
             }
             const transaction = await Transaction.findById(transactionId);
             return transaction;
+        },
+        categoryStatistics:async(_,__,context)=>{
+            //TODO: Do it by aggregation
+            const user = await context.getUser();
+            if(!user){
+                throw new Error("Unauthorized Request");
+            }
+            const transactions = await Transaction.find({userId:user._id});
+            const categoryMap = {}
+            transactions.forEach(transaction=>{
+                categoryMap[transaction.category] = (categoryMap[transaction.category] || 0) + transaction.amount;
+            });
+            return Object.entries(categoryMap).map(([category,totalAmount])=>({category,totalAmount}));
         }
     },
     Mutation:{

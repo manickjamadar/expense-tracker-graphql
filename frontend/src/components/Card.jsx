@@ -8,7 +8,10 @@ import { Link } from "react-router-dom";
 import { formatDate } from "../utils/formatDate";
 import { useMutation } from "@apollo/client";
 import { DELETE_TRANSACTION } from "../graphql/mutations/transaction.mutation";
-import { GET_TRANSACTIONS } from "../graphql/queries/transaction.query";
+import {
+  GET_TRANSACTIONS,
+  GET_CATEGORY_STATISTICS,
+} from "../graphql/queries/transaction.query";
 import toast from "react-hot-toast";
 
 const categoryColorMap = {
@@ -29,7 +32,7 @@ const Card = ({ transaction }) => {
         variables: {
           transactionId: id,
         },
-        refetchQueries: [GET_TRANSACTIONS],
+        refetchQueries: [GET_TRANSACTIONS, GET_CATEGORY_STATISTICS],
       });
       toast.success("Tranaction Deleted Successfully");
     } catch (error) {
