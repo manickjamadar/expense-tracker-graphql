@@ -1,6 +1,7 @@
 import Transaction from '../models/transaction.model.js';
 import resolverErrorHandler from "../utils/resolverErrorHandler.js";
-
+import User from '../models/user.model.js';
+import calculateAge from '../utils/calculateAge.js';
 const transactionResolver = {
     Query:{
         transactions:async(_,__,context)=>{
@@ -73,6 +74,16 @@ const transactionResolver = {
             } catch (error) {
                 resolverErrorHandler(error,"deleteTransaction")
             }
+        }
+    },
+    Transaction:{
+        user:async(parent,_,context)=>{
+            const user = await User.findById(parent.userId);
+            console.log("Fetched User: ",user._id);
+            return user;
+        },
+        age:async(parent)=>{
+            return calculateAge(new Date(+parent.date))
         }
     }
 }

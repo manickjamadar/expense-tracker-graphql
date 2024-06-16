@@ -8,6 +8,8 @@ const transactionTypeDef = `#graphql
         amount: Float!
         location: String!
         date: String!
+        user:User!
+        age:String!
     }
     enum PaymentType{
         CASH

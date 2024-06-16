@@ -2,6 +2,7 @@ import { users } from "../data.js";
 import User from '../models/user.model.js';
 import bcrypt from 'bcryptjs';
 import resolverErrorHandler from "../utils/resolverErrorHandler.js";
+import Transaction from "../models/transaction.model.js";
 const profilePictureTypeMap = {
     "MALE":"boy",
     "FEMALE":"girl"
@@ -78,6 +79,12 @@ const userResolver = {
                 resolverErrorHandler(error,"signUp");
             }
             
+        }
+    },
+    User:{
+        transactions:async(parent)=>{
+            const transactions = await Transaction.find({userId:parent._id});
+            return transactions;
         }
     }
 }

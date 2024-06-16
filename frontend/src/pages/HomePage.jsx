@@ -33,7 +33,7 @@ const HomePage = ({ profilePicture }) => {
       result.labels.push("Loading");
       result.chartDataPoints.push(100);
     }
-    staticticsData.categoryStatistics.forEach(({ category, totalAmount }) => {
+    staticticsData?.categoryStatistics.forEach(({ category, totalAmount }) => {
       result.labels.push(category);
       result.chartDataPoints.push(totalAmount);
       result.backgroundColor.push(colorMap[category]);

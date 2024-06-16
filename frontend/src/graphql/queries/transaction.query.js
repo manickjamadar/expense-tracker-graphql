@@ -10,6 +10,12 @@ export const GET_TRANSACTIONS = gql`
             description
             location
             paymentType
+            user {
+                _id
+                name
+                username
+                profilePicture
+            }
         }
     }
 `;

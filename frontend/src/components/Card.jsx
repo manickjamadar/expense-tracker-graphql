@@ -75,7 +75,7 @@ const Card = ({ transaction }) => {
         <div className="flex justify-between items-center">
           <p className="text-xs text-black font-bold">{formatDate(date)}</p>
           <img
-            src={"https://tecdn.b-cdn.net/img/new/avatars/2.webp"}
+            src={transaction.user.profilePicture}
             className="h-8 w-8 border rounded-full"
             alt=""
           />
